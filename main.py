@@ -1,4 +1,5 @@
 import random
+import os
 
 import pygame
 from pygame.constants import QUIT, K_DOWN, K_UP, K_LEFT, K_RIGHT
@@ -24,11 +25,15 @@ bg_X1 = 0
 bg_X2 = bg.get_width()
 bg_move = 3
 
+IMAGE_PATH = 'goose'
+PLAYER_IMAGES = os.listdir(IMAGE_PATH)
+
+
 
 player_size = (20, 20)
 player = pygame.image.load('player.png').convert_alpha() #pygame.Surface(player_size)
 #player.fill(COLOR_BLACK)
-player_rect = player.get_rect()
+player_rect = player.get_rect(center=(300//2,400//2)) #player_rect = player.get_rect()
 player_move_down = [0, 4]
 player_move_right = [4, 0]
 player_move_up = [0, -4]
@@ -36,29 +41,33 @@ player_move_left = [-4, 0]
 
 def create_enemy():
     enemy_size = (30, 30)
-    enemy = pygame.Surface(enemy_size)
-    enemy.fill(COLOR_BLUE)
-    enemy_rect = pygame.Rect(WIDTH, random.randint(0, HEIGHT), *enemy_size)
+    enemy = pygame.image.load('enemy.png').convert_alpha()
+    #enemy.fill(COLOR_BLUE)
+    enemy_rect = pygame.Rect(WIDTH, random.randint(30, HEIGHT-30), *enemy_size) #pygame.Rect(WIDTH, random.randint(0, HEIGHT), *enemy_size)
     enemy_move = [random.randint(-8, -4), 0]
     return [enemy, enemy_rect, enemy_move]
 
 def create_bonus():
     bonus_size = (20, 20)
-    bonus = pygame.Surface(bonus_size)
-    bonus.fill(COLOR_GREEN)
-    bonus_rect = pygame.Rect(random.randint(0, WIDTH), 0, *bonus_size)
+    bonus = pygame.image.load('bonus.png').convert_alpha()
+    #bonus.fill(COLOR_GREEN)
+    bonus_rect = pygame.Rect(random.randint(20, WIDTH-20), 0, *bonus_size) #pygame.Rect( random.randint(0, WIDTH), 0,  *bonus_size)
     bonus_speed = [0, random.randint(4, 8)]
     return [bonus, bonus_rect, bonus_speed]
 
 CREATE_ENEMY = pygame.USEREVENT + 1
-CREATE_BONUS = pygame.USEREVENT + 2
 pygame.time.set_timer(CREATE_ENEMY, 1500)
+CREATE_BONUS = pygame.USEREVENT + 2
 pygame.time.set_timer(CREATE_BONUS, 3000)
+CHANGE_IMAGE = pygame.USEREVENT + 3
+pygame.time.set_timer(CHANGE_IMAGE, 200)
 
 enemies = []
 bonuses = []
 
 score = 0
+
+image_index = 0
 
 playing = True
 
@@ -71,6 +80,11 @@ while playing:
             enemies.append(create_enemy())
         if event.type == CREATE_BONUS:
             bonuses.append(create_bonus())    
+        if event.type == CHANGE_IMAGE:
+            player = pygame.image.load(os.path.join(IMAGE_PATH, PLAYER_IMAGES[image_index]))
+            image_index += 1
+            if image_index >= len(PLAYER_IMAGES):
+                image_index = 0
 
     #main_display.fill(COLOR_BLACK)
     bg_X1 -= bg_move
